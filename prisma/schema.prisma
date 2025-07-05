@@ -40,7 +40,6 @@ model Candidate {
   election_id String      @db.Uuid
   name        String
   party       String
-  role        String      @db.VarChar(50)
   image_url   String
   created_at  DateTime    @default(now()) @db.Timestamp(6)
   updated_at  DateTime    @updatedAt @db.Timestamp(6)
