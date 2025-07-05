@@ -4,26 +4,38 @@ import { UpdateCandidateDto } from './dto/update-candidate.dto';
 import { PrismaClient } from 'generated/prisma';
 import { RpcException } from '@nestjs/microservices';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ElectionService } from '../election/election.service';
 
 @Injectable()
 export class CandidateService extends PrismaClient implements OnModuleInit {
 
   private readonly logger = new Logger('CandidateService');
 
+  constructor(private readonly electionService: ElectionService) {
+    super();
+  }
+
   async onModuleInit() {
     await this.$connect();
     this.logger.log('Database connected');
   }
 
-  create(createCandidateDto: CreateCandidateDto) {
+  async create(createCandidateDto: CreateCandidateDto) {
     try {
+      await this.electionService.findOne(createCandidateDto.election_id);
+
       return this.candidate.create({
         data: createCandidateDto
       });
     } catch (error) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
+
+      this.logger.error('Error creating candidate:', error);
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
-        message: 'Check logs',
+        message: 'Error creating candidate. Check logs for details.',
       });
     }
   }
@@ -50,6 +62,11 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
         },
       };
     } catch (error) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
+
+      this.logger.error('Error fetching candidates:', error);
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
         message: 'Check logs',
@@ -63,6 +80,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
     });
 
     if (!candidate) {
+      this.logger.warn(`Candidate with id ${id} not found`);
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         message: `Candidate whith id ${id} not found`,
@@ -78,16 +96,24 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
       await this.findOne(id);
 
+      if (updateCandidateDto?.election_id) {
+        await this.electionService.findOne(updateCandidateDto.election_id);
+      }
+
       return this.candidate.update({
         where: { id: id },
         data: data,
       });
     } catch (error) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
+
+      this.logger.error('Error updating candidate:', error);
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
         message: 'Check logs',
       });
-
     }
   }
 
@@ -100,6 +126,11 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
         data: { is_active: false },
       });
     } catch (error) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
+
+      this.logger.error('Error deleting candidate:', error);
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
         message: 'Check logs',
