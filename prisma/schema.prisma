@@ -30,6 +30,7 @@ model Election {
   status      ElectionStatus @default(PENDING)
   created_at  DateTime    @default(now()) @db.Timestamp(6)
   updated_at  DateTime    @updatedAt @db.Timestamp(6)
+  is_active  Boolean     @default(true)
 
   candidates  Candidate[]
 }
@@ -42,6 +43,8 @@ model Candidate {
   role        String      @db.VarChar(50)
   image_url   String
   created_at  DateTime    @default(now()) @db.Timestamp(6)
+  updated_at  DateTime    @updatedAt @db.Timestamp(6)
+  is_active   Boolean     @default(true)
 
   election    Election    @relation(fields: [election_id], references: [id], onDelete: Cascade)
 
