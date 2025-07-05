@@ -14,13 +14,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ElectionStatus {
+  PENDING
+  OPEN
+  CALCULATING
+  COMPLETED
+}
+
 model Election {
   id          String      @id @default(uuid()) @db.Uuid
   name        String
   description String
   start_date  DateTime    @db.Timestamp(6)
   end_date    DateTime    @db.Timestamp(6)
-  status      String      @db.VarChar(10) // valores: open, closed, etc.
+  status      ElectionStatus @default(PENDING)
   created_at  DateTime    @default(now()) @db.Timestamp(6)
   updated_at  DateTime    @updatedAt @db.Timestamp(6)
 
