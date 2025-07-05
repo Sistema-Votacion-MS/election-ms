@@ -3,33 +3,34 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CandidateService } from './candidate.service';
 import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { UpdateCandidateDto } from './dto/update-candidate.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller()
 export class CandidateController {
-  constructor(private readonly candidateService: CandidateService) {}
+  constructor(private readonly candidateService: CandidateService) { }
 
-  @MessagePattern('createCandidate')
+  @MessagePattern({ cmd: 'candidate_create' })
   create(@Payload() createCandidateDto: CreateCandidateDto) {
     return this.candidateService.create(createCandidateDto);
   }
 
-  @MessagePattern('findAllCandidate')
-  findAll() {
-    return this.candidateService.findAll();
+  @MessagePattern({ cmd: 'candidate_find_all' })
+  findAll(@Payload() paginationDto: PaginationDto) {
+    return this.candidateService.findAll(paginationDto);
   }
 
-  @MessagePattern('findOneCandidate')
-  findOne(@Payload() id: number) {
+  @MessagePattern({ cmd: 'candidate_find_one' })
+  findOne(@Payload() id: string) {
     return this.candidateService.findOne(id);
   }
 
-  @MessagePattern('updateCandidate')
+  @MessagePattern({ cmd: 'candidate_update' })
   update(@Payload() updateCandidateDto: UpdateCandidateDto) {
     return this.candidateService.update(updateCandidateDto.id, updateCandidateDto);
   }
 
-  @MessagePattern('removeCandidate')
-  remove(@Payload() id: number) {
+  @MessagePattern({ cmd: 'candidate_delete' })
+  remove(@Payload() id: string) {
     return this.candidateService.remove(id);
   }
 }

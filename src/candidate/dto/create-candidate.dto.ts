@@ -18,6 +18,6 @@ export class CreateCandidateDto {
   @IsString()
   @IsNotEmpty()
   @IsUrl()
-  image_url?: string;
+  image_url: string;
 
 }
