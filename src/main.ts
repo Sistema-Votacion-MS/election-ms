@@ -2,9 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { envs } from './config/envs';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  const logger = new Logger('ElectionMicroservice');
+
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
@@ -22,7 +24,7 @@ async function bootstrap() {
     }),
   );
 
-  console.log('election-Testing log');
+  logger.log('Starting Election Microservice...');
 
   await app.listen();
 }
