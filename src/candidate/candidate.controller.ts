@@ -3,7 +3,8 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CandidateService } from './candidate.service';
 import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { UpdateCandidateDto } from './dto/update-candidate.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { CandidatePaginationDto } from './dto/candidate-pagination.dto';
+
 
 @Controller()
 export class CandidateController {
@@ -15,8 +16,8 @@ export class CandidateController {
   }
 
   @MessagePattern({ cmd: 'candidate_find_all' })
-  findAll(@Payload() paginationDto: PaginationDto) {
-    return this.candidateService.findAll(paginationDto);
+  findAll(@Payload() candidatePaginationDto: CandidatePaginationDto) {
+    return this.candidateService.findAll(candidatePaginationDto);
   }
 
   @MessagePattern({ cmd: 'candidate_find_one' })

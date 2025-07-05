@@ -3,8 +3,8 @@ import { CreateCandidateDto } from './dto/create-candidate.dto';
 import { UpdateCandidateDto } from './dto/update-candidate.dto';
 import { PrismaClient } from 'generated/prisma';
 import { RpcException } from '@nestjs/microservices';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ElectionService } from '../election/election.service';
+import { CandidatePaginationDto } from './dto/candidate-pagination.dto';
 
 @Injectable()
 export class CandidateService extends PrismaClient implements OnModuleInit {
@@ -40,19 +40,20 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
     }
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: CandidatePaginationDto) {
     try {
-      const { page, limit } = paginationDto;
+      const { election_id, page, limit } = paginationDto;
 
-      const total = await this.candidate.count({ where: { is_active: true } });
+      const total = await this.candidate.count({ where: { is_active: true, election_id: election_id} });
       const lastPage = Math.ceil(total / limit);
 
       return {
-        data: this.candidate.findMany({
+        data: await this.candidate.findMany({
           skip: (page - 1) * limit,
           take: limit,
           where: {
             is_active: true,
+            election_id: election_id,
           },
         }),
         meta: {
