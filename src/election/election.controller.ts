@@ -32,7 +32,9 @@ export class ElectionController {
   }
 
   @MessagePattern({ cmd: 'election_delete' })
-  remove(@Payload() id: string) {
+  remove(@Payload() payload: string | { id: string }) {
+    // Manejar tanto string directo como objeto con id
+    const id = typeof payload === 'string' ? payload : payload.id;
     return this.electionService.remove(id);
   }
 }
