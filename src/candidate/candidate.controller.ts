@@ -21,7 +21,9 @@ export class CandidateController {
   }
 
   @MessagePattern({ cmd: 'candidate_find_one' })
-  findOne(@Payload() id: string) {
+  findOne(@Payload() payload: string | { id: string }) {
+    // Manejar tanto string directo como objeto con id
+    const id = typeof payload === 'string' ? payload : payload.id;
     return this.candidateService.findOne(id);
   }
 

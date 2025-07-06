@@ -20,7 +20,9 @@ export class ElectionController {
   }
 
   @MessagePattern({ cmd: 'election_find_one' })
-  findOne(@Payload() id: string) {
+  findOne(@Payload() payload: string | { id: string }) {
+    // Manejar tanto string directo como objeto con id
+    const id = typeof payload === 'string' ? payload : payload.id;
     return this.electionService.findOne(id);
   }
 
