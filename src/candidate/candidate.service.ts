@@ -22,7 +22,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
   async create(createCandidateDto: CreateCandidateDto) {
     this.logger.log(`[create] Starting candidate creation for election: ${createCandidateDto.election_id}`);
-    
+
     try {
       this.logger.debug(`[create] Verifying election exists before creating candidate`);
       await this.electionService.findOne(createCandidateDto.election_id);
@@ -35,7 +35,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
       const newCandidate = await this.candidate.create({
         data: createCandidateDto
       });
-      
+
       this.logger.log(`[create] Candidate created successfully with ID: ${newCandidate.id}`);
       return newCandidate;
     } catch (error) {
@@ -55,14 +55,14 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
   async findAll(paginationDto: CandidatePaginationDto) {
     this.logger.log(`[findAll] Starting to fetch candidates for election: ${paginationDto.election_id} - Page: ${paginationDto.page}, Limit: ${paginationDto.limit}`);
     const startTime = Date.now();
-    
+
     try {
       const { election_id, page, limit } = paginationDto;
 
       this.logger.debug(`[findAll] Counting total active candidates for election: ${election_id}`);
       const total = await this.candidate.count({ where: { is_active: true, election_id: election_id } });
       const lastPage = Math.ceil(total / limit);
-      
+
       this.logger.debug(`[findAll] Found ${total} total candidates, fetching page ${page}/${lastPage}`);
 
       const candidates = await this.candidate.findMany({
@@ -101,7 +101,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
   async findOne(id: string) {
     this.logger.log(`[findOne] Searching for candidate with ID: ${id}`);
-    
+
     this.logger.debug(`[findOne] Querying database for active candidate with ID: ${id}`);
     const candidate = await this.candidate.findUnique({
       where: { id: id, is_active: true },
@@ -122,7 +122,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
   async update(id: string, updateCandidateDto: UpdateCandidateDto) {
     this.logger.log(`[update] Starting candidate update for ID: ${id}`);
-    
+
     try {
       const { id: __, ...data } = updateCandidateDto;
 
@@ -139,7 +139,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
         where: { id: id },
         data: data,
       });
-      
+
       this.logger.log(`[update] Candidate updated successfully: ${id}`);
       return result;
     } catch (error) {
@@ -158,7 +158,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
   async remove(id: string) {
     this.logger.log(`[remove] Starting candidate deactivation for ID: ${id}`);
-    
+
     try {
       this.logger.debug(`[remove] Verifying candidate exists before deactivation`);
       await this.findOne(id);
@@ -168,7 +168,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
         where: { id: id },
         data: { is_active: false },
       });
-      
+
       this.logger.log(`[remove] Candidate deactivated successfully: ${id}`);
       return result;
     } catch (error) {
