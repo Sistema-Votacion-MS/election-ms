@@ -21,9 +21,11 @@ export class ElectionService extends PrismaClient implements OnModuleInit {
         data: createElectionDto
       });
     } catch (error) {
+      this.logger.error('Error creating election:', error);
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
-        message: 'Check logs',
+        message: 'Failed to create election. Please check if election name is unique and all required fields are provided.',
+        error: 'Election Creation Failed'
       });
     }
   }
@@ -59,7 +61,8 @@ export class ElectionService extends PrismaClient implements OnModuleInit {
     if (!election) {
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
-        message: `Election with id ${id} not found`,
+        message: `Election with id ${id} not found or is inactive`,
+        error: 'Election Not Found'
       });
     }
 
@@ -77,9 +80,15 @@ export class ElectionService extends PrismaClient implements OnModuleInit {
         data: data,
       });
     } catch (error) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
+
+      this.logger.error(`Error updating election with id ${id}:`, error);
       throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: 'Check logs',
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to update election. Please verify the data and try again.',
+        error: 'Election Update Failed'
       });
     }
   }
@@ -93,11 +102,16 @@ export class ElectionService extends PrismaClient implements OnModuleInit {
         data: { is_active: false },
       });
     } catch (error) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
+
+      this.logger.error(`Error removing election with id ${id}:`, error);
       throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: 'Check logs',
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to deactivate election. Please try again.',
+        error: 'Election Removal Failed'
       });
     }
-
   }
 }

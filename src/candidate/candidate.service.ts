@@ -44,7 +44,7 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
     try {
       const { election_id, page, limit } = paginationDto;
 
-      const total = await this.candidate.count({ where: { is_active: true, election_id: election_id} });
+      const total = await this.candidate.count({ where: { is_active: true, election_id: election_id } });
       const lastPage = Math.ceil(total / limit);
 
       return {
@@ -69,8 +69,9 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
       this.logger.error('Error fetching candidates:', error);
       throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: 'Check logs',
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to retrieve candidates. Please try again later.',
+        error: 'Database Error'
       });
     }
   }
@@ -81,10 +82,10 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
     });
 
     if (!candidate) {
-      this.logger.warn(`Candidate with id ${id} not found`);
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
-        message: `Candidate whith id ${id} not found`,
+        message: `Candidate with id ${id} not found or is inactive`,
+        error: 'Candidate Not Found'
       });
     }
 
@@ -112,8 +113,9 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
       this.logger.error('Error updating candidate:', error);
       throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: 'Check logs',
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to update candidate. Please verify the data and try again.',
+        error: 'Candidate Update Failed'
       });
     }
   }
@@ -133,8 +135,9 @@ export class CandidateService extends PrismaClient implements OnModuleInit {
 
       this.logger.error('Error deleting candidate:', error);
       throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: 'Check logs',
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to deactivate candidate. Please try again.',
+        error: 'Candidate Removal Failed'
       });
     }
   }
